@@ -35,14 +35,12 @@ const TheForm = styled.div`
     grid-template-columns: 1fr;
 
     > div:first-child {
-      min-height: 100vh;
+      min-height: 10vh;
     }
-
-    // point to div inside div inside div
   
 
-    > div div:nth-child(2) {
-      min-height: 100vh;
+    >  div:nth-child(2) {
+  
       border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
   }
