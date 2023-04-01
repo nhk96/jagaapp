@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Head from "next/head";
 
 import Box from "@mui/material/Box";
@@ -20,6 +20,8 @@ function Test1() {
     setValue(newValue);
   };
 
+  const tabref = useRef();
+
   return (
     <Box>
       <Head>
@@ -28,7 +30,11 @@ function Test1() {
 
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
+          <TabList
+            onChange={handleChange}
+            aria-label="lab API tabs example"
+            ref={tabref}
+          >
             <Tab label="Question" value="1" />
             <Tab label="Answer" value="2" />
           </TabList>
@@ -89,7 +95,7 @@ function Test1() {
           </Stack>
         </TabPanel>
         <TabPanel value="2" style={{ padding: 0 }}>
-          <AnswerView />
+          <AnswerView tabref={tabref} />
         </TabPanel>
       </TabContext>
     </Box>

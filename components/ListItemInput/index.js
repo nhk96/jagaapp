@@ -9,6 +9,22 @@ const InputSection = styled.div`
   gap: 5px;
 `;
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+`;
+
+const TheSubItemContainer = ({ parent, data }) => {
+  const [subitem, setSubitem] = useState([]);
+  return (
+    <div>
+      <p>{parent}</p>
+      <TextField label="Title" variant="outlined" />
+    </div>
+  );
+};
+
 const ListItemInput = ({ data, setNewData }) => {
   const [dataCopy, setDataCopy] = useState(data);
   const [title, setTitle] = useState("");
@@ -29,24 +45,10 @@ const ListItemInput = ({ data, setNewData }) => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <Button
-          variant="contained"
-          onClick={() => {
-            setDataCopy([
-              ...dataCopy,
-              {
-                title: title,
-                description: description,
-              },
-            ]);
-            setNewData(dataCopy);
-            setTitle("");
-            setDescription("");
-          }}
-        >
-          Add
-        </Button>{" "}
-        {dataCopy[0].items && (
+        <ButtonContainer>
+          <Button variant="outlined" onClick={() => {}}>
+            Add subitem?
+          </Button>
           <Button
             variant="contained"
             onClick={() => {
@@ -55,22 +57,14 @@ const ListItemInput = ({ data, setNewData }) => {
                 {
                   title: title,
                   description: description,
-                  items: [
-                    {
-                      title: "Subitem",
-                      description: "Subitem Description",
-                    },
-                  ],
                 },
               ]);
               setNewData(dataCopy);
-              setTitle("");
-              setDescription("");
             }}
           >
-            Add with subitem
+            Add
           </Button>
-        )}
+        </ButtonContainer>
       </InputSection>
     </div>
   );
