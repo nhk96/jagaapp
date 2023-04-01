@@ -1,8 +1,12 @@
-import { ExpandMore } from "@mui/icons-material";
+import { Close, ExpandMore } from "@mui/icons-material";
 import {
   Accordion,
   AccordionSummary,
+  Alert,
+  Button,
+  IconButton,
   Radio,
+  Snackbar,
   Switch,
   TextField,
   Typography,
@@ -77,54 +81,14 @@ const GlobalRadioButtonContainer = styled.div`
   justify-content: flex-end;
   align-items: center;
 `;
-const InputWhenContainSubItem = ({
-  parent,
-  addNewData,
-  addNewSubItem,
-  addNewSubItemInsideSubitem,
-}) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  return (
-    <InputForm>
-      <TextField
-        label="Title"
-        variant="outlined"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <TextField
-        label="Description"
-        variant="outlined"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <ButtonContainer>
-        <button
-          onClick={() => {
-            addNewSubItemInsideSubitem(parent, title, {
-              title: title,
-              description: description,
-            });
-          }}
-        >
-          Add Sub Item
-        </button>
 
-        <button
-          onClick={() => {
-            addNewSubItem(parent, {
-              title: title,
-              description: description,
-            });
-          }}
-        >
-          Add
-        </button>
-      </ButtonContainer>
-    </InputForm>
-  );
-};
+const Title = styled.div`
+  font-weight: bold;
+
+  span {
+    font-weight: 200;
+  }
+`;
 
 const InputParts = ({
   data,
@@ -133,58 +97,141 @@ const InputParts = ({
   addNewSubItemInsideSubitem,
 }) => {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [containsubitem, setContainsubitem] = useState(false);
-  return (
-    <InputForm>
-      <TextField
-        label="Title"
-        variant="outlined"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <TextField
-        label="Description"
-        variant="outlined"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <ButtonContainer>
-        <button
-          onClick={() => {
-            addNewData({
-              title: title,
-              description: description,
-            });
-          }}
-        >
-          Add
-        </button>
-        <button
-          onClick={() => {
-            addNewData({
-              title: title,
-              description: description,
-              items: [],
-            });
 
-            setContainsubitem(true);
-          }}
-        >
-          Add Sub Item
-        </button>
-      </ButtonContainer>
-      {containsubitem && (
-        <InputWhenContainSubItem
-          data={data}
-          parent={title}
-          addNewData={addNewData}
-          addNewSubItem={addNewSubItem}
-          addNewSubItemInsideSubitem={addNewSubItemInsideSubitem}
-        ></InputWhenContainSubItem>
-      )}
-    </InputForm>
-  );
+  const [scene, setScene] = useState("primary");
+  const [parent, setParent] = useState("");
+
+  const PrimaryScene = ({ addNewData }) => {
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+
+    //variable that check if the title exist in data
+    const titleExist = data.find((item) => item.title === title);
+    return (
+      <InputForm>
+        <Title>Add new item</Title>
+        <TextField
+          label="Title *"
+          variant="filled"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <TextField
+          label="Description"
+          variant="filled"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <ButtonContainer>
+          {!titleExist && (
+            <Button
+              variant="contained"
+              disabled={title === ""}
+              onClick={() => {
+                addNewData({
+                  title: title,
+                  description: description,
+                });
+              }}
+            >
+              Add
+            </Button>
+          )}
+
+          {title && titleExist && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                addNewData({
+                  title: title,
+                  description: description,
+                  items: [],
+                });
+                setParent(title);
+                setScene("secondary");
+              }}
+            >
+              Add Sub Item
+            </Button>
+          )}
+        </ButtonContainer>
+      </InputForm>
+    );
+  };
+
+  const SecondaryScane = ({ addNewSubItem, addNewSubItemInsideSubitem }) => {
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    return (
+      <InputForm>
+        <Title>
+          {parent} <span> {"›"} add child</span>
+        </Title>
+        <TextField
+          label="Title"
+          variant="filled"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <TextField
+          label="Description"
+          variant="filled"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <ButtonContainer>
+          <Button variant="text" onClick={() => setScene("primary")}>
+            Back
+          </Button>
+          <Button
+            variant="contained"
+            disabled={title === ""}
+            onClick={() => {
+              //check if title empty
+              if (title) {
+                addNewSubItem(parent, {
+                  title: title,
+                  description: description,
+                });
+              }
+            }}
+          >
+            Add
+          </Button>
+        </ButtonContainer>
+      </InputForm>
+    );
+  };
+
+  const switchScene = (e) => {
+    switch (e) {
+      case "primary":
+        return (
+          <PrimaryScene
+            data={data}
+            addNewData={addNewData}
+            addNewSubItem={addNewSubItem}
+            addNewSubItemInsideSubitem={addNewSubItemInsideSubitem}
+          ></PrimaryScene>
+        );
+
+      case "secondary":
+        return (
+          <SecondaryScane
+            data={data}
+            parent={title}
+            addNewData={addNewData}
+            addNewSubItem={addNewSubItem}
+            addNewSubItemInsideSubitem={addNewSubItemInsideSubitem}
+          ></SecondaryScane>
+        );
+
+      default:
+        break;
+    }
+  };
+
+  return <InputForm>{switchScene(scene)}</InputForm>;
 };
 
 const AnswerView = ({ tabref }) => {
@@ -194,7 +241,6 @@ const AnswerView = ({ tabref }) => {
     //if newData.title is existed, then don't add
     const isExisted = data.find((item) => item.title === newData.title);
     if (isExisted) {
-      alert("Existed");
       return;
     }
 
@@ -210,7 +256,7 @@ const AnswerView = ({ tabref }) => {
             (subItem) => subItem.title === newSubItem.title
           );
           if (isExisted) {
-            alert("Existed");
+            setOpenSnackbar(true);
             return item;
           }
 
@@ -242,7 +288,7 @@ const AnswerView = ({ tabref }) => {
                   (subSubItem) => subSubItem.title === newSubItem.title
                 );
                 if (isExisted) {
-                  alert("Existed");
+                  setOpenSnackbar(true);
                   return subItem;
                 }
 
@@ -272,6 +318,7 @@ const AnswerView = ({ tabref }) => {
   };
 
   const [showAll, setShowAll] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   return (
     <TheForm tabheight={tabref.current.offsetHeight}>
@@ -295,6 +342,19 @@ const AnswerView = ({ tabref }) => {
           <TheAccordian data={data} showAll={showAll}></TheAccordian>
         </AccordianParts>
       </div>
+      <Snackbar
+        open={openSnackbar}
+        message="Existed"
+        severity="warning"
+        autoHideDuration={6000}
+        onClose={() => {
+          setOpenSnackbar(false);
+        }}
+      >
+        <Alert severity="warning" sx={{ width: "100%" }}>
+          Existed
+        </Alert>
+      </Snackbar>
     </TheForm>
   );
 };
