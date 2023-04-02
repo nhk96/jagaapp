@@ -30,7 +30,7 @@ const IndividualAccordianHandler = ({
   style,
   showAll,
   setData,
-
+  deleteItem,
   parentId,
 }) => {
   console.log(data);
@@ -56,19 +56,28 @@ const IndividualAccordianHandler = ({
       {data.items ? (
         <AccordionSummary expandIcon={data.items ? <ExpandMore /> : ""}>
           <AccordianContent id={parentId && generateId(parentId, data.title)}>
-            <div onClick={() => {}}>
-              <Typography>{data.title}</Typography>
+            <div>
+              <Typography
+                onClick={() => {
+                  deleteItem(data.title);
+                }}
+              >
+                {data.title}
+              </Typography>
               <Description>{data.description}</Description>
             </div>
           </AccordianContent>
         </AccordionSummary>
       ) : (
         <AccordianContent style={style} className="Mui-expanded">
-          <MuiExpanded
-            onClick={() => {}}
-            id={parentId && generateId(parentId, data.title)}
-          >
-            <Typography>{data.title}</Typography>
+          <MuiExpanded id={parentId && generateId(parentId, data.title)}>
+            <Typography
+              onClick={() => {
+                deleteItem(data.title);
+              }}
+            >
+              {data.title}
+            </Typography>
             <Description>{data.description}</Description>
           </MuiExpanded>
         </AccordianContent>
@@ -83,6 +92,7 @@ const IndividualAccordianHandler = ({
               data={data.items}
               style={{ paddingLeft: 20 }}
               parentId={parentId ? [...parentId, data.title] : [data.title]}
+              deleteItem={deleteItem}
             ></TheAccordian>
           )
         }
@@ -96,7 +106,7 @@ const TheAccordian = ({
   style,
   showAll,
   setData,
-
+  deleteItem,
   parentId,
 }) => {
   return data.map((data, index) => {
@@ -108,6 +118,7 @@ const TheAccordian = ({
         key={index}
         setData={setData}
         parentId={parentId}
+        deleteItem={deleteItem}
       />
     );
   });

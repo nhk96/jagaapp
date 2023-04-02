@@ -325,6 +325,33 @@ const AnswerView = ({ tabref }) => {
     setData(newData);
   };
 
+  const deleteItem = (title) => {
+    let newData = [...data];
+    newData = deleteItemHelper(title, newData);
+    setData(newData);
+  };
+
+  const deleteItemHelper = (title, items) => {
+    return items.reduce((acc, item) => {
+      if (item.title === title) {
+        if (item.items && item.items.length) {
+          // if the item has children, replace it with its first child
+          acc.push(
+            item.items[0],
+            ...deleteItemHelper(title, item.items.slice(1))
+          );
+        }
+      } else {
+        if (item.items && item.items.length) {
+          // if the item has children, recursively call deleteItemHelper
+          item.items = deleteItemHelper(title, item.items);
+        }
+        acc.push(item);
+      }
+      return acc;
+    }, []);
+  };
+
   const [showAll, setShowAll] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -357,7 +384,7 @@ const AnswerView = ({ tabref }) => {
           ></Switch>
         </GlobalRadioButtonContainer>
         <AccordianParts>
-          <TheAccordian data={data} showAll={showAll}></TheAccordian>
+          <TheAccordian data={data} showAll={showAll} deleteItem={deleteItem} />
         </AccordianParts>
       </div>
       <Snackbar
