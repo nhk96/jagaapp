@@ -373,6 +373,8 @@ const AnswerView = ({ tabref }) => {
           individually
           <br></br> - This should be able to open/close all list with 1 button
           individually
+          <br></br> - This should be able to delete any children (by pressing on
+          the title)
         </Tips>
       </div>
       <div>
