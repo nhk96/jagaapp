@@ -2,8 +2,6 @@ import { ExpandMore } from "@mui/icons-material";
 import { Accordion, AccordionSummary, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
-import { hardcoded } from "../../utils/hardcoded";
-
 import styled from "styled-components";
 
 const AccordianContent = styled.div`
@@ -27,12 +25,25 @@ const MuiExpanded = styled.div`
   flex-direction: column;
 `;
 
-const IndividualAccordianHandler = ({ data, style, showAll }) => {
+const IndividualAccordianHandler = ({
+  data,
+  style,
+  showAll,
+  setData,
+
+  parentId,
+}) => {
+  console.log(data);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setOpen(showAll);
   }, [showAll]);
+
+  const generateId = (parentTitles, title) => {
+    const parentIds = parentTitles.map((t) => t.replace(/\s+/g, ""));
+    return `${parentIds.join("-")}-${title.replace(/\s+/g, "-")}`;
+  };
 
   return (
     <Accordion
@@ -44,8 +55,8 @@ const IndividualAccordianHandler = ({ data, style, showAll }) => {
     >
       {data.items ? (
         <AccordionSummary expandIcon={data.items ? <ExpandMore /> : ""}>
-          <AccordianContent>
-            <div>
+          <AccordianContent id={parentId && generateId(parentId, data.title)}>
+            <div onClick={() => {}}>
               <Typography>{data.title}</Typography>
               <Description>{data.description}</Description>
             </div>
@@ -53,7 +64,10 @@ const IndividualAccordianHandler = ({ data, style, showAll }) => {
         </AccordionSummary>
       ) : (
         <AccordianContent style={style} className="Mui-expanded">
-          <MuiExpanded>
+          <MuiExpanded
+            onClick={() => {}}
+            id={parentId && generateId(parentId, data.title)}
+          >
             <Typography>{data.title}</Typography>
             <Description>{data.description}</Description>
           </MuiExpanded>
@@ -62,12 +76,13 @@ const IndividualAccordianHandler = ({ data, style, showAll }) => {
 
       <div>
         {
-          // if data got items, then render the accordian again, repeat again if there is item inside item
+          // if data got items, then render the accordion again, repeat again if there is item inside item
           data.items && (
             <TheAccordian
               showAll={showAll}
               data={data.items}
               style={{ paddingLeft: 20 }}
+              parentId={parentId ? [...parentId, data.title] : [data.title]}
             ></TheAccordian>
           )
         }
@@ -76,7 +91,14 @@ const IndividualAccordianHandler = ({ data, style, showAll }) => {
   );
 };
 
-const TheAccordian = ({ data, style, showAll }) => {
+const TheAccordian = ({
+  data,
+  style,
+  showAll,
+  setData,
+
+  parentId,
+}) => {
   return data.map((data, index) => {
     return (
       <IndividualAccordianHandler
@@ -84,6 +106,8 @@ const TheAccordian = ({ data, style, showAll }) => {
         style={style}
         showAll={showAll}
         key={index}
+        setData={setData}
+        parentId={parentId}
       />
     );
   });
