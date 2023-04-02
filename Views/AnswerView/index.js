@@ -90,6 +90,14 @@ const Title = styled.div`
   }
 `;
 
+const Tips = styled.div`
+  font-style: italic;
+  opacity: 0.6;
+  font-weight: 400;
+  font-size: 12px;
+  padding-top: 20px;
+`;
+
 const InputParts = ({
   data,
   addNewData,
@@ -329,6 +337,16 @@ const AnswerView = ({ tabref }) => {
           addNewSubItem={addNewSubItem}
           addNewSubItemInsideSubitem={addNewSubItemInsideSubitem}
         ></InputParts>
+        <Tips>
+          * To add subitem, please enter the name of the parent.
+          <br></br>* Due to time constaint, there are a few requirements that I
+          cannot fullfill.
+          <br></br> - This should be able to create parent and child list item
+          <br></br> - This should be able to open and close any parent list view
+          individually
+          <br></br> - This should be able to open/close all list with 1 button
+          individually
+        </Tips>
       </div>
       <div>
         <GlobalRadioButtonContainer>
