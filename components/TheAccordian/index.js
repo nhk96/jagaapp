@@ -1,5 +1,16 @@
 import { ExpandMore } from "@mui/icons-material";
-import { Accordion, AccordionSummary, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionSummary,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 import styled from "styled-components";
@@ -29,12 +40,120 @@ const IndividualAccordianHandler = ({
   data,
   style,
   showAll,
-  setData,
   deleteItem,
   parentId,
+  updateItem,
 }) => {
-  console.log(data);
   const [open, setOpen] = useState(false);
+
+  const [dialog, setDialog] = useState(false);
+  const [dialogScene, setDialogScene] = useState("selectAction");
+
+  const [title, setTitle] = useState(data.title);
+  const [description, setDescription] = useState(data.description);
+
+  function resetEverything() {
+    setDialog(false);
+    setDialogScene("selectAction");
+    setTitle(data.title);
+    setDescription(data.description);
+  }
+
+  const DefaultScene = () => {
+    return (
+      <>
+        <DialogTitle
+          id={(parentId && generateId(parentId, data.title)) + "-dialog"}
+        >
+          {"Please select an action"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            What do you want to do with this item?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              deleteItem(data.title);
+              resetEverything();
+            }}
+          >
+            Delete Item
+          </Button>
+          <Button
+            onClick={() => {
+              setDialogScene("updateItem");
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            onClick={() => {
+              resetEverything();
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </>
+    );
+  };
+
+  const switchDialogScene = (scene) => {
+    switch (scene) {
+      case "selectAction":
+        return <DefaultScene />;
+      case "updateItem":
+        return (
+          <>
+            <DialogTitle
+              id={(parentId && generateId(parentId, data.title)) + "-dialog"}
+            >
+              Update item
+            </DialogTitle>
+            <DialogContent>
+              <TextField
+                id="title"
+                value={title}
+                label="Title"
+                variant="filled"
+                onChange={(e) => setTitle(e.target.value)}
+                fullWidth
+              />
+              <TextField
+                margin="dense"
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                label="Description"
+                variant="filled"
+                fullWidth
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  updateItem(data.title, title, description);
+                  resetEverything();
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                onClick={() => {
+                  resetEverything();
+                }}
+              >
+                Cancel
+              </Button>
+            </DialogActions>
+          </>
+        );
+      default:
+        return <DefaultScene />;
+    }
+  };
 
   useEffect(() => {
     setOpen(showAll);
@@ -46,58 +165,70 @@ const IndividualAccordianHandler = ({
   };
 
   return (
-    <Accordion
-      style={style}
-      onChange={() =>
-        data.items ? setOpen((prev) => !prev) : setOpen((prev) => !prev)
-      }
-      expanded={open}
-    >
-      {data.items ? (
-        <AccordionSummary expandIcon={data.items ? <ExpandMore /> : ""}>
-          <AccordianContent id={parentId && generateId(parentId, data.title)}>
-            <div>
+    <>
+      <Accordion
+        style={style}
+        onChange={() =>
+          data.items ? setOpen((prev) => !prev) : setOpen((prev) => !prev)
+        }
+        expanded={open}
+      >
+        {data.items ? (
+          <AccordionSummary expandIcon={data.items ? <ExpandMore /> : ""}>
+            <AccordianContent id={parentId && generateId(parentId, data.title)}>
+              <div>
+                <Typography
+                  onClick={() => {
+                    setDialog(true);
+                  }}
+                >
+                  {data.title}
+                </Typography>
+                <Description>{data.description}</Description>
+              </div>
+            </AccordianContent>
+          </AccordionSummary>
+        ) : (
+          <AccordianContent style={style} className="Mui-expanded">
+            <MuiExpanded id={parentId && generateId(parentId, data.title)}>
               <Typography
                 onClick={() => {
-                  deleteItem(data.title);
+                  setDialog(true);
                 }}
               >
                 {data.title}
               </Typography>
               <Description>{data.description}</Description>
-            </div>
+            </MuiExpanded>
           </AccordianContent>
-        </AccordionSummary>
-      ) : (
-        <AccordianContent style={style} className="Mui-expanded">
-          <MuiExpanded id={parentId && generateId(parentId, data.title)}>
-            <Typography
-              onClick={() => {
-                deleteItem(data.title);
-              }}
-            >
-              {data.title}
-            </Typography>
-            <Description>{data.description}</Description>
-          </MuiExpanded>
-        </AccordianContent>
-      )}
+        )}
 
-      <div>
-        {
-          // if data got items, then render the accordion again, repeat again if there is item inside item
-          data.items && (
-            <TheAccordian
-              showAll={showAll}
-              data={data.items}
-              style={{ paddingLeft: 20 }}
-              parentId={parentId ? [...parentId, data.title] : [data.title]}
-              deleteItem={deleteItem}
-            ></TheAccordian>
-          )
-        }
-      </div>
-    </Accordion>
+        <Dialog
+          open={dialog}
+          onClose={() => {
+            setDialog(false);
+          }}
+        >
+          {switchDialogScene(dialogScene)}
+        </Dialog>
+
+        <div>
+          {
+            // if data got items, then render the accordion again, repeat again if there is item inside item
+            data.items && (
+              <TheAccordian
+                showAll={showAll}
+                data={data.items}
+                style={{ paddingLeft: 20 }}
+                parentId={parentId ? [...parentId, data.title] : [data.title]}
+                deleteItem={deleteItem}
+                updateItem={updateItem}
+              ></TheAccordian>
+            )
+          }
+        </div>
+      </Accordion>
+    </>
   );
 };
 
@@ -108,6 +239,7 @@ const TheAccordian = ({
   setData,
   deleteItem,
   parentId,
+  updateItem,
 }) => {
   return data.map((data, index) => {
     return (
@@ -119,6 +251,7 @@ const TheAccordian = ({
         setData={setData}
         parentId={parentId}
         deleteItem={deleteItem}
+        updateItem={updateItem}
       />
     );
   });

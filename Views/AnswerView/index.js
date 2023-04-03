@@ -4,6 +4,7 @@ import {
   AccordionSummary,
   Alert,
   Button,
+  Dialog,
   IconButton,
   Radio,
   Snackbar,
@@ -53,6 +54,7 @@ const TheForm = styled.div`
 `;
 
 const AccordianParts = styled.div`
+  position: relative;
   .MuiAccordion-root {
     box-shadow: none;
   }
@@ -98,12 +100,7 @@ const Tips = styled.div`
   padding-top: 20px;
 `;
 
-const InputParts = ({
-  data,
-  addNewData,
-  addNewSubItem,
-  addNewSubItemInsideSubitem,
-}) => {
+const InputParts = ({ data, addNewData, addNewSubItem }) => {
   const [title, setTitle] = useState("");
 
   const [scene, setScene] = useState("primary");
@@ -167,7 +164,7 @@ const InputParts = ({
     );
   };
 
-  const SecondaryScane = ({ addNewSubItem, addNewSubItemInsideSubitem }) => {
+  const SecondaryScane = ({ addNewSubItem }) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     return (
@@ -197,6 +194,7 @@ const InputParts = ({
             onClick={() => {
               //check if title empty
               if (title) {
+                //param is parent, subitems
                 addNewSubItem(parent, {
                   title: title,
                   description: description,
@@ -219,7 +217,6 @@ const InputParts = ({
             data={data}
             addNewData={addNewData}
             addNewSubItem={addNewSubItem}
-            addNewSubItemInsideSubitem={addNewSubItemInsideSubitem}
           ></PrimaryScene>
         );
 
@@ -230,7 +227,6 @@ const InputParts = ({
             parent={title}
             addNewData={addNewData}
             addNewSubItem={addNewSubItem}
-            addNewSubItemInsideSubitem={addNewSubItemInsideSubitem}
           ></SecondaryScane>
         );
 
@@ -255,13 +251,14 @@ const AnswerView = ({ tabref }) => {
     setData([...data, newData]);
   };
 
-  const addNewSubItem = (parent, newSubItem) => {
-    const newData = data.map((item) => {
+  //add new subitem to parent
+  const addNewSubItem = (parent, newData) => {
+    const newDataWithSubItem = data.map((item) => {
       if (item.title === parent) {
         if (item.items) {
           // if item.items.title is existed, then don't add
           const isExisted = item.items.find(
-            (subItem) => subItem.title === newSubItem.title
+            (subItem) => subItem.title === newData.title
           );
           if (isExisted) {
             setOpenSnackbar(true);
@@ -270,59 +267,20 @@ const AnswerView = ({ tabref }) => {
 
           return {
             ...item,
-            items: [...item.items, newSubItem],
+            items: [...item.items, newData],
           };
-        }
-        return {
-          ...item,
-          items: [newSubItem],
-        };
-      }
-      return item;
-    });
-
-    setData(newData);
-  };
-
-  const addNewSubItemInsideSubitem = (parent, subParent, newSubItem) => {
-    const newData = data.map((item) => {
-      if (item.title === parent) {
-        if (item.items) {
-          const newItems = item.items.map((subItem) => {
-            if (subItem.title === subParent) {
-              if (subItem.items) {
-                // if subItem.items.title is existed, then don't add
-                const isExisted = subItem.items.find(
-                  (subSubItem) => subSubItem.title === newSubItem.title
-                );
-                if (isExisted) {
-                  setOpenSnackbar(true);
-                  return subItem;
-                }
-
-                return {
-                  ...subItem,
-                  items: [...subItem.items, newSubItem],
-                };
-              }
-              return {
-                ...subItem,
-                items: [newSubItem],
-              };
-            }
-            return subItem;
-          });
-
+        } else {
           return {
             ...item,
-            items: newItems,
+            items: [newData],
           };
         }
+      } else {
+        return item;
       }
-      return item;
     });
 
-    setData(newData);
+    setData(newDataWithSubItem);
   };
 
   const deleteItem = (title) => {
@@ -352,6 +310,36 @@ const AnswerView = ({ tabref }) => {
     }, []);
   };
 
+  //write update function here
+  function updateItem(title, newTitle, newDescription) {
+    let newData = [...data];
+    newData = updateItemHelper(title, newTitle, newDescription, newData);
+    setData(newData);
+  }
+
+  function updateItemHelper(title, newTitle, newDescription, items) {
+    return items.map((item) => {
+      if (item.title === title) {
+        return {
+          ...item,
+          title: newTitle,
+          description: newDescription,
+        };
+      } else {
+        if (item.items && item.items.length) {
+          // if the item has children, recursively call updateItemHelper
+          item.items = updateItemHelper(
+            title,
+            newTitle,
+            newDescription,
+            item.items
+          );
+        }
+        return item;
+      }
+    });
+  }
+
   const [showAll, setShowAll] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
@@ -362,19 +350,19 @@ const AnswerView = ({ tabref }) => {
           data={data}
           addNewData={addNewData}
           addNewSubItem={addNewSubItem}
-          addNewSubItemInsideSubitem={addNewSubItemInsideSubitem}
         ></InputParts>
         <Tips>
           * To add subitem, please enter the name of the parent.
           <br></br>* Due to time constaint, there are a few requirements that I
           cannot fullfill.
+          <br></br> * Please click on the parent or child title to perform
+          actions.
           <br></br> - This should be able to create parent and child list item
           <br></br> - This should be able to open and close any parent list view
           individually
           <br></br> - This should be able to open/close all list with 1 button
-          individually
-          <br></br> - This should be able to delete any children (by pressing on
-          the title)
+          <br></br> - This should be able to delete any children
+          <br></br> - This should be able to edit any parent or children
         </Tips>
       </div>
       <div>
@@ -386,7 +374,12 @@ const AnswerView = ({ tabref }) => {
           ></Switch>
         </GlobalRadioButtonContainer>
         <AccordianParts>
-          <TheAccordian data={data} showAll={showAll} deleteItem={deleteItem} />
+          <TheAccordian
+            data={data}
+            showAll={showAll}
+            deleteItem={deleteItem}
+            updateItem={updateItem}
+          />
         </AccordianParts>
       </div>
       <Snackbar
