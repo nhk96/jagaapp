@@ -352,7 +352,10 @@ const AnswerView = ({ tabref }) => {
           addNewSubItem={addNewSubItem}
         ></InputParts>
         <Tips>
-          * To add subitem, please enter the name of the parent.
+          <a href="https://github.com/nhk96/jagaapp">
+            Source code available here.
+          </a>
+          <br></br>* To add subitem, please enter the name of the parent.
           <br></br>* Due to time constaint, there are a few requirements that I
           cannot fullfill.
           <br></br> * Please click on the parent or child title to perform
