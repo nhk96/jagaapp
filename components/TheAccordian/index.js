@@ -62,11 +62,7 @@ const IndividualAccordianHandler = ({
   const DefaultScene = () => {
     return (
       <>
-        <DialogTitle
-          id={(parentId && generateId(parentId, data.title)) + "-dialog"}
-        >
-          {"Please select an action"}
-        </DialogTitle>
+        <DialogTitle>{"Please select an action"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             What do you want to do with this item?
@@ -75,8 +71,7 @@ const IndividualAccordianHandler = ({
         <DialogActions>
           <Button
             onClick={() => {
-              deleteItem(data.title);
-              resetEverything();
+              setDialogScene("deleteScene");
             }}
           >
             Delete Item
@@ -100,56 +95,90 @@ const IndividualAccordianHandler = ({
     );
   };
 
+  const UpdateScene = () => {
+    return (
+      <>
+        <DialogTitle>Update item</DialogTitle>
+        <DialogContent>
+          <TextField
+            id="title"
+            value={title}
+            label="Title"
+            variant="filled"
+            onChange={(e) => setTitle(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            margin="dense"
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            label="Description"
+            variant="filled"
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              updateItem(data.title, title, description);
+              resetEverything();
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            onClick={() => {
+              resetEverything();
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </>
+    );
+  };
+
+  const DeleteScene = () => {
+    return (
+      <>
+        <DialogTitle>Delete item</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Do you want delete all or just the parent?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              deleteItem(data.title);
+              resetEverything();
+            }}
+          >
+            Delete All
+          </Button>
+          <Button
+            onClick={() => {
+              deleteItem(data.title, "deleteParent");
+              resetEverything();
+            }}
+          >
+            Delete this
+          </Button>
+        </DialogActions>
+      </>
+    );
+  };
+
   const switchDialogScene = (scene) => {
     switch (scene) {
       case "selectAction":
         return <DefaultScene />;
       case "updateItem":
-        return (
-          <>
-            <DialogTitle
-              id={(parentId && generateId(parentId, data.title)) + "-dialog"}
-            >
-              Update item
-            </DialogTitle>
-            <DialogContent>
-              <TextField
-                id="title"
-                value={title}
-                label="Title"
-                variant="filled"
-                onChange={(e) => setTitle(e.target.value)}
-                fullWidth
-              />
-              <TextField
-                margin="dense"
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                label="Description"
-                variant="filled"
-                fullWidth
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() => {
-                  updateItem(data.title, title, description);
-                  resetEverything();
-                }}
-              >
-                Save
-              </Button>
-              <Button
-                onClick={() => {
-                  resetEverything();
-                }}
-              >
-                Cancel
-              </Button>
-            </DialogActions>
-          </>
-        );
+        return <UpdateScene />;
+
+      case "deleteScene":
+        return <DeleteScene />;
       default:
         return <DefaultScene />;
     }

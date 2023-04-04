@@ -283,26 +283,26 @@ const AnswerView = ({ tabref }) => {
     setData(newDataWithSubItem);
   };
 
-  const deleteItem = (title) => {
+  const deleteItem = (title, type) => {
     let newData = [...data];
-    newData = deleteItemHelper(title, newData);
+    newData = deleteItemHelper(title, newData, type);
     setData(newData);
   };
 
-  const deleteItemHelper = (title, items) => {
+  const deleteItemHelper = (title, items, type) => {
     return items.reduce((acc, item) => {
       if (item.title === title) {
-        if (item.items && item.items.length) {
+        if (type === "deleteParent" && item.items && item.items.length) {
           // if the item has children, replace it with its first child
           acc.push(
             item.items[0],
-            ...deleteItemHelper(title, item.items.slice(1))
+            ...deleteItemHelper(title, item.items.slice(1), type)
           );
         }
       } else {
         if (item.items && item.items.length) {
           // if the item has children, recursively call deleteItemHelper
-          item.items = deleteItemHelper(title, item.items);
+          item.items = deleteItemHelper(title, item.items, type);
         }
         acc.push(item);
       }
