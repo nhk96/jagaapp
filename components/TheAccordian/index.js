@@ -36,6 +36,57 @@ const MuiExpanded = styled.div`
   flex-direction: column;
 `;
 
+const UpdateScene = ({
+  title,
+  description,
+  setTitle,
+  setDescription,
+  updateItem,
+  resetEverything,
+}) => {
+  return (
+    <>
+      <DialogTitle>Update item</DialogTitle>
+      <DialogContent>
+        <TextField
+          id="title"
+          value={title}
+          label="Title"
+          variant="filled"
+          onChange={(e) => setTitle(e.target.value)}
+          fullWidth
+        />
+        <TextField
+          margin="dense"
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          label="Description"
+          variant="filled"
+          fullWidth
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => {
+            updateItem(data.title, title, description);
+            resetEverything();
+          }}
+        >
+          Save
+        </Button>
+        <Button
+          onClick={() => {
+            resetEverything();
+          }}
+        >
+          Cancel
+        </Button>
+      </DialogActions>
+    </>
+  );
+};
+
 const IndividualAccordianHandler = ({
   data,
   style,
@@ -95,50 +146,6 @@ const IndividualAccordianHandler = ({
     );
   };
 
-  const UpdateScene = () => {
-    return (
-      <>
-        <DialogTitle>Update item</DialogTitle>
-        <DialogContent>
-          <TextField
-            id="title"
-            value={title}
-            label="Title"
-            variant="filled"
-            onChange={(e) => setTitle(e.target.value)}
-            fullWidth
-          />
-          <TextField
-            margin="dense"
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            label="Description"
-            variant="filled"
-            fullWidth
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              updateItem(data.title, title, description);
-              resetEverything();
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            onClick={() => {
-              resetEverything();
-            }}
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </>
-    );
-  };
-
   const DeleteScene = () => {
     return (
       <>
@@ -175,7 +182,16 @@ const IndividualAccordianHandler = ({
       case "selectAction":
         return <DefaultScene />;
       case "updateItem":
-        return <UpdateScene />;
+        return (
+          <UpdateScene
+            title={title}
+            description={description}
+            setTitle={setTitle}
+            setDescription={setDescription}
+            resetEverything={resetEverything}
+            updateItem={updateItem}
+          />
+        );
 
       case "deleteScene":
         return <DeleteScene />;
