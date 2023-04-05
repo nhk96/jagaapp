@@ -42,6 +42,7 @@ const UpdateScene = ({
   setTitle,
   setDescription,
   updateItem,
+  data,
   resetEverything,
 }) => {
   return (
@@ -190,6 +191,7 @@ const IndividualAccordianHandler = ({
             setDescription={setDescription}
             resetEverything={resetEverything}
             updateItem={updateItem}
+            data={data}
           />
         );
 
